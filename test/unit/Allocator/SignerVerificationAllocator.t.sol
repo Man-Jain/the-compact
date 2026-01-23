@@ -43,20 +43,20 @@ contract SignerVerificationAllocatorTest is Test {
         address newSigner = makeAddr("newSigner");
         
         vm.prank(other);
-        vm.expectRevert("Not owner");
+        vm.expectRevert("Ownable: caller is not the owner");
         allocator.setSigner(newSigner);
     }
 
-    function test_SetOwner() public {
+    function test_TransferOwnership() public {
         address newOwner = makeAddr("newOwner");
         
         vm.prank(owner);
-        allocator.setOwner(newOwner);
+        allocator.transferOwnership(newOwner);
         assertEq(allocator.owner(), newOwner);
         
         // Old owner should fail
         vm.prank(owner);
-        vm.expectRevert("Not owner");
+        vm.expectRevert("Ownable: caller is not the owner");
         allocator.setSigner(signer);
 
         // New owner should succeed

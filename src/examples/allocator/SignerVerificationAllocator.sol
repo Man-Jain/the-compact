@@ -3,29 +3,22 @@ pragma solidity 0.8.30;
 
 import { IAllocator } from "../../interfaces/IAllocator.sol";
 import { SignatureCheckerLib } from "solady/utils/SignatureCheckerLib.sol";
+import { Ownable } from "lib/permit2/lib/openzeppelin-contracts/contracts/access/Ownable.sol";
 
 interface EIP712 {
     function DOMAIN_SEPARATOR() external view returns (bytes32);
 }
 
-contract SignerVerificationAllocator is IAllocator {
+contract SignerVerificationAllocator is IAllocator, Ownable {
     using SignatureCheckerLib for address;
 
     address public signer;
-    address public owner;
     EIP712 internal immutable COMPACT;
 
     event SignerUpdated(address indexed oldSigner, address indexed newSigner);
-    event OwnerUpdated(address indexed oldOwner, address indexed newOwner);
 
-    modifier onlyOwner() {
-        require(msg.sender == owner, "Not owner");
-        _;
-    }
-
-    constructor(address _signer, address compact) {
+    constructor(address _signer, address compact) Ownable() {
         signer = _signer;
-        owner = msg.sender;
         COMPACT = EIP712(compact);
     }
 
@@ -33,12 +26,6 @@ contract SignerVerificationAllocator is IAllocator {
         address oldSigner = signer;
         signer = _newSigner;
         emit SignerUpdated(oldSigner, _newSigner);
-    }
-
-    function setOwner(address _newOwner) external onlyOwner {
-        address oldOwner = owner;
-        owner = _newOwner;
-        emit OwnerUpdated(oldOwner, _newOwner);
     }
 
     function attest(address, address, address, uint256, uint256) external pure returns (bytes4) {
@@ -78,6 +65,7 @@ contract SignerVerificationAllocator is IAllocator {
         idsAndAmounts;
 
         // Construct the EIP-712 digest
+        // @dev Consider inheriting EIP712 in the Allocator or caching the compact domain separator as an immutable
         bytes32 digest = keccak256(abi.encodePacked(bytes2(0x1901), COMPACT.DOMAIN_SEPARATOR(), claimHash));
 
         // Verify the signature against the stored signer
