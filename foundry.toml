@@ -16,6 +16,6 @@ line_length = 120
 tab_width = 4
 bracket_spacing = true
 
-[lint]
+[profile.lint]
 exclude_lints = ["mixed-case-function", "mixed-case-variable", "asm-keccak256", "unused-import", "unaliased-plain-import", "screaming-snake-case-const", "screaming-snake-case-immutable", "unsafe-typecast"]
 # note that unsafe-typecast is included in this list; remove it to review the respective warnings as part of build
