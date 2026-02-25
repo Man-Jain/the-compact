@@ -10,9 +10,21 @@ import {
 contract SignerVerificationAllocator is IAllocator, Ownable {
   using SignatureCheckerLib for address;
 
-  /// @dev Static Compact EIP-712 domain separator
-  bytes32 internal constant COMPACT_DOMAIN_SEPARATOR =
-    0x86e7aad2e0029bde18b0d57fc8f265574d4ff8cc5c8b859ed76df2428b57de53;
+  /// @dev EIP-712 domain typehash
+  bytes32 internal constant _EIP_712_DOMAIN_TYPEHASH =
+    0x8b73c3c69bb8fe3d512ecc4cf759cc79239f7b179b0ffacaa9a75d522b39400f;
+
+  /// @dev Name hash for EIP-712 domain
+  bytes32 internal constant _NAME_HASH =
+    0x5e6f7b4e1ac3d625bac418bc955510b3e054cb6cc23cc27885107f080180b292;
+
+  /// @dev Version hash for EIP-712 domain
+  bytes32 internal constant _VERSION_HASH =
+    0x044852b2a670ade5407e78fb2863c51de9fcb96542a07186fe3aeda6bb8a116d;
+
+  /// @dev Verifying contract address for EIP-712 domain
+  address internal constant _VERIFYING_CONTRACT =
+    0x00000000000000171ede64904551eeDF3C6C9788;
 
   address public signer;
 
@@ -63,6 +75,27 @@ contract SignerVerificationAllocator is IAllocator, Ownable {
     return this.authorizeClaim.selector;
   }
 
+  /// @dev Generates the EIP-712 domain separator dynamically
+  /// @return The domain separator hash
+  function _getDomainSeparator() internal view returns (bytes32) {
+    return
+      keccak256(
+        abi.encode(
+          _EIP_712_DOMAIN_TYPEHASH,
+          _NAME_HASH,
+          _VERSION_HASH,
+          block.chainid,
+          _VERIFYING_CONTRACT
+        )
+      );
+  }
+
+  /// @notice Public getter for the domain separator (useful for testing and external verification)
+  /// @return The domain separator hash
+  function getDomainSeparator() external view returns (bytes32) {
+    return _getDomainSeparator();
+  }
+
   function isClaimAuthorized(
     bytes32 claimHash,
     address arbiter,
@@ -79,9 +112,10 @@ contract SignerVerificationAllocator is IAllocator, Ownable {
     expires;
     idsAndAmounts;
 
-    // Construct the EIP-712 digest
+    // Construct the EIP-712 digest using dynamically generated domain separator
+    bytes32 domainSeparator = _getDomainSeparator();
     bytes32 digest = keccak256(
-      abi.encodePacked(bytes2(0x1901), COMPACT_DOMAIN_SEPARATOR, claimHash)
+      abi.encodePacked(bytes2(0x1901), domainSeparator, claimHash)
     );
 
     // Verify the signature against the stored signer

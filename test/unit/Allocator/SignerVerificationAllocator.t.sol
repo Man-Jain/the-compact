@@ -7,9 +7,6 @@ import {
 } from "src/examples/allocator/SignerVerificationAllocator.sol";
 
 contract SignerVerificationAllocatorTest is Test {
-  bytes32 internal constant COMPACT_DOMAIN_SEPARATOR =
-    0x86e7aad2e0029bde18b0d57fc8f265574d4ff8cc5c8b859ed76df2428b57de53;
-
   SignerVerificationAllocator allocator;
   address owner;
   address signer;
@@ -65,8 +62,9 @@ contract SignerVerificationAllocatorTest is Test {
 
   function test_authorizeClaim_ValidSignature() public {
     bytes32 claimHash = keccak256("claim");
+    bytes32 domainSeparator = allocator.getDomainSeparator();
     bytes32 digest = keccak256(
-      abi.encodePacked(bytes2(0x1901), COMPACT_DOMAIN_SEPARATOR, claimHash)
+      abi.encodePacked(bytes2(0x1901), domainSeparator, claimHash)
     );
 
     (uint8 v, bytes32 r, bytes32 s) = vm.sign(signerPk, digest);
@@ -97,8 +95,9 @@ contract SignerVerificationAllocatorTest is Test {
 
   function test_authorizeClaim_InvalidSignature() public {
     bytes32 claimHash = keccak256("claim");
+    bytes32 domainSeparator = allocator.getDomainSeparator();
     bytes32 digest = keccak256(
-      abi.encodePacked(bytes2(0x1901), COMPACT_DOMAIN_SEPARATOR, claimHash)
+      abi.encodePacked(bytes2(0x1901), domainSeparator, claimHash)
     );
 
     (, uint256 otherPk) = makeAddrAndKey("otherSigner");
@@ -132,8 +131,9 @@ contract SignerVerificationAllocatorTest is Test {
 
   function test_authorizeClaim_UpdateSigner() public {
     bytes32 claimHash = keccak256("claim");
+    bytes32 domainSeparator = allocator.getDomainSeparator();
     bytes32 digest = keccak256(
-      abi.encodePacked(bytes2(0x1901), COMPACT_DOMAIN_SEPARATOR, claimHash)
+      abi.encodePacked(bytes2(0x1901), domainSeparator, claimHash)
     );
 
     (address newSigner, uint256 newPk) = makeAddrAndKey("newSigner");
