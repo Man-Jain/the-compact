@@ -19,3 +19,8 @@ bracket_spacing = true
 [profile.lint]
 exclude_lints = ["mixed-case-function", "mixed-case-variable", "asm-keccak256", "unused-import", "unaliased-plain-import", "screaming-snake-case-const", "screaming-snake-case-immutable", "unsafe-typecast"]
 # note that unsafe-typecast is included in this list; remove it to review the respective warnings as part of build
+[rpc_endpoints]
+optimism = "https://rpc.ankr.com/optimism/328f2943cccedcece01572bbf49bebb41a773bca7c6d1fdea5ca239f55e72a5b"
+base = "https://rpc.ankr.com/base/328f2943cccedcece01572bbf49bebb41a773bca7c6d1fdea5ca239f55e72a5b"
+polygon = "https://rpc.ankr.com/polygon/328f2943cccedcece01572bbf49bebb41a773bca7c6d1fdea5ca239f55e72a5b"
+arbitrum = "https://rpc.ankr.com/arbitrum/328f2943cccedcece01572bbf49bebb41a773bca7c6d1fdea5ca239f55e72a5b"
